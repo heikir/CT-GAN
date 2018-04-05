@@ -100,7 +100,7 @@ def train_loop(
             )
     
     print "Initializing variables"
-    session.run(tf.initialize_all_variables())
+    session.run(tf.global_variables_initializer())
 
     total_iters = 0
     total_seconds = 0.

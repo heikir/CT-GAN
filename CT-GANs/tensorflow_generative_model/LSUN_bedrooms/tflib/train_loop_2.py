@@ -139,7 +139,7 @@ def train_loop(
             dataset_iters += 1
     else:
         print "Initializing variables..."
-        session.run(tf.initialize_all_variables())
+        session.run(tf.global_variables_initializer())
         print "done!"
 
     train_output_entries = [[]]

@@ -66,7 +66,7 @@ def inf_train_gen():
 # Train loop!
 with tf.Session() as session:
 
-    session.run(tf.initialize_all_variables())
+    session.run(tf.global_variables_initializer())
 
     gen = inf_train_gen()
     disc_costs, all_disc_gradients, gen_costs = [], [], []

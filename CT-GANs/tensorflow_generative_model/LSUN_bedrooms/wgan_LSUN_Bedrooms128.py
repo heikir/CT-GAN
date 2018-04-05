@@ -358,7 +358,7 @@ with tf.Session() as session:
             for images, in train_gen():
                 yield images
 
-    session.run(tf.initialize_all_variables())
+    session.run(tf.global_variables_initializer())
 
     generate_image(0)
 
