@@ -15,6 +15,7 @@ import tflib.inception_score
 import tflib.plot
 
 import numpy as np
+os.environ["CUDA_VISIBLE_DEVICES"] = os.environ['SGE_GPU']
 import tensorflow as tf
 import sklearn.datasets
 
@@ -26,7 +27,7 @@ locale.setlocale(locale.LC_ALL, '')
 # Download CIFAR-10 (Python version) at
 # https://www.cs.toronto.edu/~kriz/cifar.html and fill in the path to the
 # extracted files here!
-DATA_DIR = '/home/bigdata/Desktop/CT-GANs/cifar-10-batches-py'    #file path to be modified
+DATA_DIR = '../../../data'    #file path to be modified
 if len(DATA_DIR) == 0:
     raise Exception('Please specify path to data directory in gan_cifar.py!')
 
@@ -68,7 +69,7 @@ def nonlinearity(x):
     return tf.nn.relu(x)
 
 def Normalize(name, inputs,labels=None):
-    """This is messy, but basically it chooses between batchnorm, layernorm, 
+    """This is messy, but basically it chooses between batchnorm, layernorm,
     their conditional variants, or nothing, depending on the value of `name` and
     the global hyperparam flags."""
     if not CONDITIONAL:
@@ -133,9 +134,9 @@ def ResidualBlock(name, input_dim, output_dim, filter_size, inputs, resample=Non
     output = inputs
     output = Normalize(name+'.N1', output, labels=labels)
     output = nonlinearity(output)
-    output = conv_1(name+'.Conv1', filter_size=filter_size, inputs=output)    
+    output = conv_1(name+'.Conv1', filter_size=filter_size, inputs=output)
     output = Normalize(name+'.N2', output, labels=labels)
-    output = nonlinearity(output)            
+    output = nonlinearity(output)
     output = conv_2(name+'.Conv2', filter_size=filter_size, inputs=output)
 
     return shortcut + output
@@ -147,8 +148,8 @@ def OptimizedResBlockDisc1(inputs):
     shortcut = conv_shortcut('Discriminator.1.Shortcut', input_dim=3, output_dim=DIM_D, filter_size=1, he_init=False, biases=True, inputs=inputs)
 
     output = inputs
-    output = conv_1('Discriminator.1.Conv1', filter_size=3, inputs=output)    
-    output = nonlinearity(output)            
+    output = conv_1('Discriminator.1.Conv1', filter_size=3, inputs=output)
+    output = nonlinearity(output)
     output = conv_2('Discriminator.1.Conv2', filter_size=3, inputs=output)
     return shortcut + output
 
@@ -212,13 +213,13 @@ with tf.Session() as session:
     for i, device in enumerate(DEVICES_A):
         with tf.device(device):
             real_and_fake_data = tf.concat([
-                all_real_data_splits[i], 
-                all_real_data_splits[len(DEVICES_A)+i], 
-                fake_data_splits[i], 
+                all_real_data_splits[i],
+                all_real_data_splits[len(DEVICES_A)+i],
+                fake_data_splits[i],
                 fake_data_splits[len(DEVICES_A)+i]
             ], axis=0)
             real_and_fake_labels = tf.concat([
-                labels_splits[i], 
+                labels_splits[i],
                 labels_splits[len(DEVICES_A)+i],
                 labels_splits[i],
                 labels_splits[len(DEVICES_A)+i]
@@ -271,11 +272,11 @@ with tf.Session() as session:
             real_data = tf.concat([all_real_data_splits[i], all_real_data_splits[len(DEVICES_A)+i]], axis=0)
             fake_data = tf.concat([fake_data_splits[i], fake_data_splits[len(DEVICES_A)+i]], axis=0)
             labels = tf.concat([
-                labels_splits[i], 
+                labels_splits[i],
                 labels_splits[len(DEVICES_A)+i],
             ], axis=0)
             alpha = tf.random_uniform(
-                shape=[BATCH_SIZE/len(DEVICES_A),1], 
+                shape=[BATCH_SIZE/len(DEVICES_A),1],
                 minval=0.,
                 maxval=1.
             )
@@ -285,7 +286,7 @@ with tf.Session() as session:
             slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), reduction_indices=[1]))
             gradient_penalty = 10.0*tf.reduce_mean((slopes-1.)**2)
             #consistency term
-            CT = LAMBDA_2*tf.square(disc_real-disc_real_)  
+            CT = LAMBDA_2*tf.square(disc_real-disc_real_)
             CT += LAMBDA_2*0.1*tf.reduce_mean(tf.square(disc_real_2-disc_real_2_),reduction_indices=[1])
             CT_ = tf.maximum(CT-Factor_M,0.0*(CT-Factor_M))
             CT_ = tf.reduce_mean(CT_)
@@ -413,7 +414,7 @@ with tf.Session() as session:
 
         if iteration % INCEPTION_FREQUENCY == INCEPTION_FREQUENCY-1:
             inception_score = get_inception_score(50000)
-            #inception_score_2 = get_inception_score(50000)     # inception score for testing. They are very closed for two times of running,  
+            #inception_score_2 = get_inception_score(50000)     # inception score for testing. They are very closed for two times of running,
             lib.plot.plot('inception_50k', inception_score[0])
             lib.plot.plot('inception_50k_std', inception_score[1])
             #lib.plot.plot('inception_50k_2', inception_score_2[0])

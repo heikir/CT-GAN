@@ -10,6 +10,8 @@ import tarfile
 
 import numpy as np
 from six.moves import urllib
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = os.environ['SGE_GPU']
 import tensorflow as tf
 import glob
 import scipy.misc
@@ -20,7 +22,7 @@ MODEL_DIR = '/tmp/imagenet'
 DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
 softmax = None
 
-# Call this function with list of images. Each of elements should be a 
+# Call this function with list of images. Each of elements should be a
 # numpy array with values ranging from 0 to 255.
 def get_inception_score(images, splits=10):
   assert(type(images) == list)
