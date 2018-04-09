@@ -10,8 +10,6 @@ import tarfile
 
 import numpy as np
 from six.moves import urllib
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = os.environ['SGE_GPU']
 import tensorflow as tf
 import glob
 import scipy.misc

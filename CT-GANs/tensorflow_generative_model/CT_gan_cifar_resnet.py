@@ -3,6 +3,7 @@
 
 import os, sys
 sys.path.append(os.getcwd())
+os.environ["CUDA_VISIBLE_DEVICES"] = os.environ['SGE_GPU']
 
 import tflib as lib
 import tflib.ops.linear
@@ -15,7 +16,6 @@ import tflib.inception_score
 import tflib.plot
 
 import numpy as np
-os.environ["CUDA_VISIBLE_DEVICES"] = os.environ['SGE_GPU']
 import tensorflow as tf
 import sklearn.datasets
 

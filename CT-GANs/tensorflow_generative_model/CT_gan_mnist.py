@@ -21,7 +21,7 @@ import tflib.plot
 
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = os.environ['SGE_GPU']
 
 Factor_M = 0.0 # factor M
 LAMBDA_2 = 2.0 # weight factor
@@ -31,7 +31,7 @@ DIM = 64 # Model dimensionality
 BATCH_SIZE = 50 # Batch size
 CRITIC_ITERS = 5 # For WGAN and WGAN-GP, number of critic iters per gen iter
 LAMBDA = 10 # Gradient penalty lambda hyperparameter
-ITERS = 50000 # How many generator iterations to train for 
+ITERS = 50000 # How many generator iterations to train for
 OUTPUT_DIM = 784 # Number of pixels in MNIST (28*28)
 
 lib.print_model_settings(locals().copy())
@@ -41,9 +41,9 @@ def LeakyReLU(x, alpha=0.2):
 
 def ReLULayer(name, n_in, n_out, inputs):
     output = lib.ops.linear.Linear(
-        name+'.Linear', 
-        n_in, 
-        n_out, 
+        name+'.Linear',
+        n_in,
+        n_out,
         inputs,
         initialization='he'
     )
@@ -51,9 +51,9 @@ def ReLULayer(name, n_in, n_out, inputs):
 
 def LeakyReLULayer(name, n_in, n_out, inputs):
     output = lib.ops.linear.Linear(
-        name+'.Linear', 
-        n_in, 
-        n_out, 
+        name+'.Linear',
+        n_in,
+        n_out,
         inputs,
         initialization='he'
     )
@@ -136,7 +136,7 @@ if MODE == 'wgan':
         clip_bounds = [-.01, .01]
         clip_ops.append(
             tf.assign(
-                var, 
+                var,
                 tf.clip_by_value(var, clip_bounds[0], clip_bounds[1])
             )
         )
@@ -155,7 +155,7 @@ elif MODE == 'wgan-CT':
     disc_cost += tf.reduce_mean(CT_)
 
     alpha = tf.random_uniform(
-        shape=[BATCH_SIZE,1], 
+        shape=[BATCH_SIZE,1],
         minval=0.,
         maxval=1.
     )
@@ -166,13 +166,13 @@ elif MODE == 'wgan-CT':
     gradient_penalty = tf.reduce_mean((slopes-1.)**2)
     disc_cost += LAMBDA*gradient_penalty
     gen_train_op = tf.train.AdamOptimizer(
-        learning_rate=1e-4, 
+        learning_rate=1e-4,
         beta1=0.5,
         beta2=0.9
     ).minimize(gen_cost, var_list=gen_params)
     disc_train_op = tf.train.AdamOptimizer(
-        learning_rate=1e-4, 
-        beta1=0.5, 
+        learning_rate=1e-4,
+        beta1=0.5,
         beta2=0.9
     ).minimize(disc_cost, var_list=disc_params)
 
@@ -180,26 +180,26 @@ elif MODE == 'wgan-CT':
 
 elif MODE == 'dcgan':
     gen_cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
-        disc_fake, 
+        disc_fake,
         tf.ones_like(disc_fake)
     ))
 
     disc_cost =  tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
-        disc_fake, 
+        disc_fake,
         tf.zeros_like(disc_fake)
     ))
     disc_cost += tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
-        disc_real, 
+        disc_real,
         tf.ones_like(disc_real)
     ))
     disc_cost /= 2.
 
     gen_train_op = tf.train.AdamOptimizer(
-        learning_rate=2e-4, 
+        learning_rate=2e-4,
         beta1=0.5
     ).minimize(gen_cost, var_list=gen_params)
     disc_train_op = tf.train.AdamOptimizer(
-        learning_rate=2e-4, 
+        learning_rate=2e-4,
         beta1=0.5
     ).minimize(disc_cost, var_list=disc_params)
 
@@ -211,7 +211,7 @@ fixed_noise_samples = Generator(128, noise=fixed_noise)
 def generate_image(frame, true_dist):
     samples = session.run(fixed_noise_samples)
     lib.save_images.save_images(
-        samples.reshape((128, 28, 28)), 
+        samples.reshape((128, 28, 28)),
         'samples_{}.png'.format(frame)
     )
 
@@ -256,7 +256,7 @@ with tf.Session() as session:
             dev_disc_costs = []
             for images,_ in dev_gen():
                 _dev_disc_cost = session.run(
-                    disc_cost, 
+                    disc_cost,
                     feed_dict={real_data: images}
                 )
                 dev_disc_costs.append(_dev_disc_cost)

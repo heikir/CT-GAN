@@ -1,8 +1,6 @@
 import tflib as lib
 
 import numpy as np
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = os.environ['SGE_GPU']
 import tensorflow as tf
 
 def Layernorm(name, norm_axes, inputs):

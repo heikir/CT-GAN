@@ -17,7 +17,7 @@ import tflib.inception_score
 import tflib.plot
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = os.environ['SGE_GPU']
 
 
 # Download CIFAR-10 (Python version) at
@@ -135,7 +135,7 @@ if MODE == 'wgan-CT':
 
     # Gradient penalty
     alpha = tf.random_uniform(
-        shape=[BATCH_SIZE,1], 
+        shape=[BATCH_SIZE,1],
         minval=0.,
         maxval=1.
     )
@@ -222,7 +222,7 @@ with tf.Session() as session:
             np.save("param.pyn",para)
             dev_disc_costs = []
             for images,_ in dev_gen():
-                _dev_disc_cost,slopes = session.run([disc_cost,slopes2], feed_dict={real_data_int: images}) 
+                _dev_disc_cost,slopes = session.run([disc_cost,slopes2], feed_dict={real_data_int: images})
                 dev_disc_costs.append(_dev_disc_cost)
             max_slope = np.max(slopes) # only to check the biggest slope in each batch.
             lib.plot.plot('slope_real', max_slope)

@@ -5,6 +5,7 @@ import time
 import functools
 
 import numpy as np
+os.environ["CUDA_VISIBLE_DEVICES"] = os.environ['SGE_GPU']
 import tensorflow as tf
 import sklearn.datasets
 
@@ -496,7 +497,7 @@ with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as session:
                 disc_cost = tf.reduce_mean(disc_fake) - tf.reduce_mean(disc_real)
 
                 alpha = tf.random_uniform(
-                    shape=[BATCH_SIZE/len(DEVICES),1], 
+                    shape=[BATCH_SIZE/len(DEVICES),1],
                     minval=0.,
                     maxval=1.
                 )
@@ -509,7 +510,7 @@ with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as session:
 
 
 
-                CT = LAMBDA_2*tf.square(disc_real-disc_real_)  
+                CT = LAMBDA_2*tf.square(disc_real-disc_real_)
                 CT += LAMBDA_2*0.1*tf.reduce_mean(tf.square(disc_real_2-disc_real_2_),reduction_indices=[1])
                 CT_ = tf.maximum(CT-Factor_M,0.0*(CT-Factor_M))
                 CT_ = tf.reduce_mean(CT_)
@@ -525,11 +526,11 @@ with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as session:
                     disc_cost =  tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=disc_fake,
                                                                                         labels=tf.zeros_like(disc_fake)))
                     disc_cost += tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=disc_real,
-                                                                                        labels=tf.ones_like(disc_real)))                    
+                                                                                        labels=tf.ones_like(disc_real)))
                 except Exception as e:
                     gen_cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(disc_fake, tf.ones_like(disc_fake)))
                     disc_cost =  tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(disc_fake, tf.zeros_like(disc_fake)))
-                    disc_cost += tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(disc_real, tf.ones_like(disc_real)))                    
+                    disc_cost += tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(disc_real, tf.ones_like(disc_real)))
                 disc_cost /= 2.
 
             elif MODE == 'lsgan':
@@ -658,7 +659,7 @@ with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as session:
             t = time.time()
             dev_disc_costs = []
             for (images,) in dev_gen():
-                _dev_disc_cost = session.run(disc_cost, feed_dict={all_real_data_conv: images}) 
+                _dev_disc_cost = session.run(disc_cost, feed_dict={all_real_data_conv: images})
                 dev_disc_costs.append(_dev_disc_cost)
             lib.plot.plot('dev disc cost', np.mean(dev_disc_costs))
 
