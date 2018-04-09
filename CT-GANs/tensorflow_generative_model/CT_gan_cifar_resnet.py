@@ -31,7 +31,7 @@ DATA_DIR = '../../../data'    #file path to be modified
 if len(DATA_DIR) == 0:
     raise Exception('Please specify path to data directory in gan_cifar.py!')
 
-N_GPUS = 2
+N_GPUS = 1
 if N_GPUS not in [1,2]:
     raise Exception('Only 1 or 2 GPUs supported!')
 
